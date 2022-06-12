@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -15,35 +16,56 @@ namespace sync_client
         {
             IPEndPoint ipPoint = new IPEndPoint(IPAddress.Parse(address), port);
 
-            Socket socket = null;
-            socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            socket.Connect(ipPoint);
+            //Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            TcpClient client = null;
 
-            string message = "";
+            // подключаемся к удаленному хосту
+            //socket.Connect(ipPoint);
+
+            string message = string.Empty;
             while (message != "end")
             {
                 try
                 {
+                    client = new TcpClient(address, port);
+                    //client.Connect(ipPoint);
+
                     Console.Write("Enter a message:");
                     message = Console.ReadLine();
 
-                    // подключаемся к удаленному хосту
+                    NetworkStream ns = client.GetStream();
 
-                    byte[] data = Encoding.Unicode.GetBytes(message);
-                    socket.Send(data);
+                    StreamWriter streamWriter = new StreamWriter(ns);
+                    streamWriter.WriteLine(message);
+
+                    streamWriter.Flush(); // send all buffered data and clear buffer
+
+                    //byte[] data = Encoding.Unicode.GetBytes(message);
+                    //socket.Send(data);
 
                     // получаем ответ
-                    data = new byte[256]; // буфер для ответа
-                    StringBuilder builder = new StringBuilder();
-                    int bytes = 0; // количество полученных байт
+                    //data = new byte[256]; // буфер для ответа
+                    //StringBuilder builder = new StringBuilder();
+                    //int bytes = 0; // количество полученных байт
 
-                    do
-                    {
-                        bytes = socket.Receive(data, data.Length, 0);
-                        builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
-                    }
-                    while (socket.Available > 0);
-                    Console.WriteLine("server response: " + builder.ToString());
+                    //do
+                    //{
+                    //    bytes = socket.Receive(data, data.Length, 0);
+                    //    builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
+                    //}
+                    //while (socket.Available > 0);
+                    // string response = builder.ToString();
+
+                    //NetworkStream ns = client.GetStream();
+
+                    StreamReader streamReader = new StreamReader(ns);
+                    string response = streamReader.ReadLine();
+                    Console.WriteLine("server response: " + response);
+
+                    streamReader.Close();
+                    streamWriter.Close();
+                    ns.Close();
+
                 }
                 catch (Exception ex)
                 {
@@ -55,6 +77,7 @@ namespace sync_client
                     //socket.Shutdown(SocketShutdown.Both);
                     //socket.Disconnect(true);
                     //socket.Close();
+                    client?.Close();
                 }
             }
         }
