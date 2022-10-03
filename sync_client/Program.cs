@@ -43,7 +43,7 @@ namespace sync_client
                     StreamWriter sw = new StreamWriter(ns);
                     sw.WriteLine(message);
 
-                    sw.Flush(); // send all buffered data and clear buffer
+                    sw.Flush(); // send all buffered data and clear the buffer
 
                     // получаем ответ
                     //data = new byte[256]; // буфер для ответа
