@@ -1,73 +1,52 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using SharedData;
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace sync_client
 {
     class Program
     {
-        // адрес и порт сервера, к которому будем подключаться
-        static int port = 8080; // порт сервера
-        static string address = "127.0.0.1"; // адрес сервера
+        // адрес та порт сервера, до якого відбувається підключення
+        static int port = 8080;              // порт сервера
+        static string address = "127.0.0.1"; // адреса сервера
         static void Main(string[] args)
         {
             IPEndPoint ipPoint = new IPEndPoint(IPAddress.Parse(address), port);
 
-            //Socket socket = null;
-            //socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             TcpClient client = new TcpClient();
 
-            // подключаемся к удаленному хосту
-            //socket.Connect(ipPoint);
+            // підключення до віддаленого хоста
             client.Connect(ipPoint);
 
-            string message = "";
             try
             {
-                while (message != "end")
+                Request request = new Request();
+                do
                 {
-                    Console.Write("Enter a message:");
-                    message = Console.ReadLine();
+                    // введення даних для відправки
+                    Console.Write("Enter A:");
+                    request.A = double.Parse(Console.ReadLine());
+                    Console.Write("Enter B:");
+                    request.B = double.Parse(Console.ReadLine());
+                    Console.Write("Enter Operation (1-4):");
+                    request.Operation = (OperationType)Enum.Parse(typeof(OperationType), Console.ReadLine());
 
+                    // отримуємо потік для обміну повідомленнями
                     NetworkStream ns = client.GetStream();
 
-                    // ns.Write() - send data
-                    // ns.Read()  - receive data
+                    // серіалізація об'єкта та відправка його
+                    BinaryFormatter formatter = new BinaryFormatter();
+                    formatter.Serialize(ns, request);
 
-                    //byte[] data = Encoding.Unicode.GetBytes(message);
-                    //socket.Send(data);
-
-                    StreamWriter sw = new StreamWriter(ns);
-                    sw.WriteLine(message);
-
-                    sw.Flush(); // send all buffered data and clear the buffer
-
-                    // получаем ответ
-                    //data = new byte[256]; // буфер для ответа
-                    //StringBuilder builder = new StringBuilder();
-                    //int bytes = 0; // количество полученных байт
-
-                    //do
-                    //{
-                    //    bytes = socket.Receive(data, data.Length, 0);
-                    //    builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
-                    //}
-                    //while (socket.Available > 0);
-                    //string response = builder.ToString();
-
+                    // отримуємо відповідь
                     StreamReader sr = new StreamReader(ns);
                     string response = sr.ReadLine();
 
-                    Console.WriteLine("server response: " + response);
-
-                    // закриваємо потокі
-                    //sw.Close();
-                    //sr.Close();
-                    //ns.Close();
-                }
+                    Console.WriteLine("Server response: " + response);
+                } while (request.A != 0 || request.B != 0);
             }
             catch (Exception ex)
             {
@@ -75,10 +54,7 @@ namespace sync_client
             }
             finally
             {
-                // закрываем сокет
-                //socket.Shutdown(SocketShutdown.Both);
-                //socket.Disconnect(true);
-                //socket.Close();
+                // закриваємо підключення
                 client.Close();
             }
         }

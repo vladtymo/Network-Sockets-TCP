@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E24E6F8A-FE38-4B29-9F5B-417BDBC3FA45}</ProjectGuid>
+    <ProjectGuid>{99CF3E77-DD15-49FF-8E13-67943EDD2397}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>np_sync_sockets</RootNamespace>
-    <AssemblyName>np_sync_sockets</AssemblyName>
+    <RootNamespace>sync_client</RootNamespace>
+    <AssemblyName>sync_client</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -49,6 +49,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\shared_data\shared_data.csproj">
+      <Project>{ce5833c5-2ded-471c-8331-8fd2782ed2c9}</Project>
+      <Name>shared_data</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

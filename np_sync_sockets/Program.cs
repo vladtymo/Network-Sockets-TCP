@@ -1,91 +1,68 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using SharedData;
+using System;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace np_sync_sockets
 {
     class Program
     {
-        static int port = 8080; // порт для приема входящих запросов
+        // порт та адреса для приймання вхідних підключень
+        static int port = 8080;
+        static string address = "127.0.0.1"; // localhost
         static void Main(string[] args)
         {
-            // получаем адреса для запуска сокета
-            IPAddress iPAddress = IPAddress.Parse("127.0.0.1");//Dns.GetHostEntry("localhost").AddressList[1]; //localhost
-            IPEndPoint ipPoint = new IPEndPoint(iPAddress, port);
+            // створення кінцевої точки для запуску сервера
+            IPEndPoint ipPoint = new IPEndPoint(IPAddress.Parse(address), port);
 
-            // создаем сокет
-            //Socket listenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            TcpListener listener = new TcpListener(ipPoint); // bind
-            
-            try
+            // створюємо сокет на вказаній кінцевій точці
+            TcpListener listener = new TcpListener(ipPoint);
+
+            // запуск приймання підключень на сервер
+            listener.Start(10);
+
+            while (true)
             {
-                // связываем сокет с локальной точкой, по которой будем принимать данные
-                //listenSocket.Bind(ipPoint);
-
-                // начинаем прослушивание
-                //listenSocket.Listen(10);
-                listener.Start(10);
-
                 Console.WriteLine("Server started! Waiting for connection...");
-                //Socket handler = listenSocket.Accept();
                 TcpClient client = listener.AcceptTcpClient();
 
-                while (client.Connected)
+                try
                 {
-                    // handler.Receive(); - get data from client
-                    // handler.Send();    - sent data to client
+                    while (client.Connected)
+                    {
+                        NetworkStream ns = client.GetStream();
 
-                    NetworkStream ns = client.GetStream();
+                        // отримуємо переданий об'єкт та десеріалізуємо його
+                        BinaryFormatter formatter = new BinaryFormatter();
+                        var request = (Request)formatter.Deserialize(ns);
 
-                    // ns.Write() - send data to client
-                    // ns.Read()  - receive data from client
+                        Console.WriteLine($"Request data: {request.A} {request.B} from {client.Client.LocalEndPoint}");
 
-                    // получаем сообщение
-                    //StringBuilder builder = new StringBuilder();
-                    //int bytes = 0; // количество полученных байтов
-                    //byte[] data = new byte[256]; // буфер для получаемых данных
+                        // відправляємо відповідь
+                        double result = 0;
+                        switch (request.Operation)
+                        {
+                            case OperationType.Add: result = request.A + request.B; break;
+                            case OperationType.Sub: result = request.A - request.B; break;
+                            case OperationType.Mult: result = request.A * request.B; break;
+                            case OperationType.Div: result = request.A / request.B; break;
+                        }
 
-                    //do
-                    //{
-                    //    bytes = handler.Receive(data);
-                    //    builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
-                    //}
-                    //while (handler.Available > 0);
+                        string response = $"Result = {result}";
+                        StreamWriter sw = new StreamWriter(ns); // розмір буфера за замовчуванням: 1KB
+                        sw.WriteLine(response);
+                        sw.Flush();
+                    }
 
-                    StreamReader sr = new StreamReader(ns);
-                    string response = sr.ReadLine();
-
-                    //Console.WriteLine($"{handler.RemoteEndPoint} - {builder.ToString()} at {DateTime.Now.ToShortTimeString()}");
-                    Console.WriteLine($"{client.Client.RemoteEndPoint} - {response} at {DateTime.Now.ToShortTimeString()}");
-
-                    // отправляем ответ
-                    string message = "Message was send!";
-                    //data = Encoding.Unicode.GetBytes(message);
-                    //handler.Send(data);
-
-                    StreamWriter sw = new StreamWriter(ns);
-                    sw.WriteLine(message);
-
-                    sw.Flush();
-
-                    // закриваємо потокі
-                    //sr.Close();
-                    //sw.Close();
-                    //ns.Close();
+                    // закриваємо сокет
+                    client.Close();
                 }
-                // закрываем сокет
-                //handler.Shutdown(SocketShutdown.Both);
-                //handler.Close();
-                client.Close();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
             }
             listener.Stop();
         }
