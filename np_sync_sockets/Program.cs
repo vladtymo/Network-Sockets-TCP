@@ -26,7 +26,7 @@ namespace np_sync_sockets
             while (true)
             {
                 Console.WriteLine("Server started! Waiting for connection...");
-                TcpClient client = listener.AcceptTcpClient();
+                TcpClient client = listener.AcceptTcpClient(); // wait until connection
 
                 try
                 {
@@ -38,7 +38,7 @@ namespace np_sync_sockets
                         BinaryFormatter formatter = new BinaryFormatter();
                         var request = (Request)formatter.Deserialize(ns);
 
-                        Console.WriteLine($"Request data: {request.A} {request.B} from {client.Client.LocalEndPoint}");
+                        Console.WriteLine($"Request data: {request.A} {request.B} from {client.Client.RemoteEndPoint}");
 
                         // відправляємо відповідь
                         double result = 0;
@@ -51,9 +51,11 @@ namespace np_sync_sockets
                         }
 
                         string response = $"Result = {result}";
-                        StreamWriter sw = new StreamWriter(ns); // розмір буфера за замовчуванням: 1KB
-                        sw.WriteLine(response);
-                        sw.Flush();
+                        Console.WriteLine(response);
+
+                        //StreamWriter sw = new StreamWriter(ns); // розмір буфера за замовчуванням: 1KB
+                        //sw.WriteLine(response);
+                        //sw.Flush();
                     }
 
                     // закриваємо сокет

@@ -37,15 +37,18 @@ namespace sync_client
                     // отримуємо потік для обміну повідомленнями
                     NetworkStream ns = client.GetStream();
 
+                    // ns.Write() - send data to server
+                    // ns.Read()  - get data from the server
+
                     // серіалізація об'єкта та відправка його
                     BinaryFormatter formatter = new BinaryFormatter();
                     formatter.Serialize(ns, request);
 
                     // отримуємо відповідь
-                    StreamReader sr = new StreamReader(ns);
-                    string response = sr.ReadLine();
+                    //StreamReader sr = new StreamReader(ns);
+                    //string response = sr.ReadLine();
 
-                    Console.WriteLine("Server response: " + response);
+                    //Console.WriteLine("Server response: " + response);
                 } while (request.A != 0 || request.B != 0);
             }
             catch (Exception ex)
