@@ -53,9 +53,9 @@ namespace np_sync_sockets
                         string response = $"Result = {result}";
                         Console.WriteLine(response);
 
-                        //StreamWriter sw = new StreamWriter(ns); // розмір буфера за замовчуванням: 1KB
-                        //sw.WriteLine(response);
-                        //sw.Flush();
+                        StreamWriter sw = new StreamWriter(ns); // розмір буфера за замовчуванням: 1KB
+                        sw.WriteLine(response);
+                        sw.Flush(); // clear buffer
                     }
 
                     // закриваємо сокет

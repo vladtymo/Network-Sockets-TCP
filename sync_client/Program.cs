@@ -45,10 +45,10 @@ namespace sync_client
                     formatter.Serialize(ns, request);
 
                     // отримуємо відповідь
-                    //StreamReader sr = new StreamReader(ns);
-                    //string response = sr.ReadLine();
+                    StreamReader sr = new StreamReader(ns);
+                    string response = sr.ReadLine();
 
-                    //Console.WriteLine("Server response: " + response);
+                    Console.WriteLine("Server response: " + response);
                 } while (request.A != 0 || request.B != 0);
             }
             catch (Exception ex)
