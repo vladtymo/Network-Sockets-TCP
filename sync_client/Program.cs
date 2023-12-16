@@ -14,6 +14,8 @@ namespace sync_client
         static string address = "127.0.0.1"; // адреса сервера
         static void Main(string[] args)
         {
+            Console.WindowWidth = 50;
+
             IPEndPoint ipPoint = new IPEndPoint(IPAddress.Parse(address), port);
 
             TcpClient client = new TcpClient();
@@ -27,11 +29,11 @@ namespace sync_client
                 do
                 {
                     // введення даних для відправки
-                    Console.Write("Enter A:");
+                    Console.Write("Enter A: ");
                     request.A = double.Parse(Console.ReadLine());
-                    Console.Write("Enter B:");
+                    Console.Write("Enter B: ");
                     request.B = double.Parse(Console.ReadLine());
-                    Console.Write("Enter Operation (1-4):");
+                    Console.Write("Enter Operation (1+ 2- 3* 4/): ");
                     request.Operation = (OperationType)Enum.Parse(typeof(OperationType), Console.ReadLine());
 
                     // отримуємо потік для обміну повідомленнями

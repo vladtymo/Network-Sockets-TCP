@@ -14,6 +14,8 @@ namespace np_sync_sockets
         static string address = "127.0.0.1"; // localhost
         static void Main(string[] args)
         {
+            Console.WindowWidth = 70;
+
             // створення кінцевої точки для запуску сервера
             IPEndPoint ipPoint = new IPEndPoint(IPAddress.Parse(address), port);
 
@@ -28,11 +30,16 @@ namespace np_sync_sockets
                 Console.WriteLine("Server started! Waiting for connection...");
                 TcpClient client = listener.AcceptTcpClient(); // wait until connection
 
+                //client.SendBufferSize = 0;
+
                 try
                 {
                     while (client.Connected)
                     {
                         NetworkStream ns = client.GetStream();
+
+                        // ns.Write() - send data to client
+                        // ns.Read()  - get data from the client
 
                         // отримуємо переданий об'єкт та десеріалізуємо його
                         BinaryFormatter formatter = new BinaryFormatter();
